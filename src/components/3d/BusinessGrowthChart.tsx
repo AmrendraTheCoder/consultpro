@@ -121,10 +121,10 @@ const BackgroundParticles = () => {
   const particlesRef = useRef<THREE.Points>(null);
 
   const particles = useMemo(() => {
-    const positions = new Float32Array(200 * 3);
-    const colors = new Float32Array(200 * 3);
+    const positions = new Float32Array(50 * 3);
+    const colors = new Float32Array(50 * 3);
 
-    for (let i = 0; i < 200; i++) {
+    for (let i = 0; i < 50; i++) {
       positions[i * 3] = (Math.random() - 0.5) * 20;
       positions[i * 3 + 1] = (Math.random() - 0.5) * 20;
       positions[i * 3 + 2] = (Math.random() - 0.5) * 20;
@@ -152,13 +152,13 @@ const BackgroundParticles = () => {
       <bufferGeometry>
         <bufferAttribute
           attach="attributes-position"
-          count={200}
+          count={50}
           array={particles.positions}
           itemSize={3}
         />
         <bufferAttribute
           attach="attributes-color"
-          count={200}
+          count={50}
           array={particles.colors}
           itemSize={3}
         />

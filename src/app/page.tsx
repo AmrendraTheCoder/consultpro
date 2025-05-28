@@ -1,14 +1,53 @@
 "use client";
 
-import BusinessGrowthChart from "@/components/3d/BusinessGrowthChart";
-import MorphingContactForm from "@/components/forms/MorphingContactForm";
-import ServicesSection from "@/components/sections/ServicesSection";
-import { ThemeSwitcher } from "@/components/theme-switcher";
-import ClientSuccessTimeline from "@/components/timeline/ClientSuccessTimeline";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { ChevronDown, Play, Star, TrendingUp, Users, Zap } from "lucide-react";
-import Image from "next/image";
-import { useRef } from "react";
+import dynamic from "next/dynamic";
+import { useRef, useMemo } from "react";
+
+// Dynamic imports for better performance
+const BusinessGrowthChart = dynamic(
+  () => import("@/components/3d/BusinessGrowthChart"),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex items-center justify-center h-[500px] bg-gradient-to-br from-emerald-900/20 via-teal-900/20 to-blue-900/20 rounded-2xl">
+        <div className="text-white/60">Loading 3D Chart...</div>
+      </div>
+    ),
+  }
+);
+
+const MorphingContactForm = dynamic(
+  () => import("@/components/forms/MorphingContactForm"),
+  {
+    ssr: false,
+  }
+);
+
+const ServicesSection = dynamic(
+  () => import("@/components/sections/ServicesSection"),
+  {
+    ssr: false,
+  }
+);
+
+const ClientSuccessTimeline = dynamic(
+  () => import("@/components/timeline/ClientSuccessTimeline"),
+  {
+    ssr: false,
+  }
+);
+
+const ThemeSwitcher = dynamic(
+  () =>
+    import("@/components/theme-switcher").then((mod) => ({
+      default: mod.ThemeSwitcher,
+    })),
+  {
+    ssr: false,
+  }
+);
 
 export default function Page() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -20,80 +59,94 @@ export default function Page() {
   const backgroundY = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]);
   const textY = useTransform(scrollYProgress, [0, 1], ["0%", "200%"]);
 
+  // Memoize particles for better performance - reduced from 100 to 30
+  const backgroundParticles = useMemo(
+    () =>
+      [...Array(30)].map((_, i) => (
+        <motion.div
+          key={i}
+          className="absolute rounded-full opacity-30"
+          style={{
+            width: Math.random() * 3 + 1,
+            height: Math.random() * 3 + 1,
+            background: `linear-gradient(45deg, ${
+              ["#10b981", "#06b6d4", "#3b82f6", "#0ea5e9", "#14b8a6"][
+                Math.floor(Math.random() * 5)
+              ]
+            }, ${
+              ["#06b6d4", "#3b82f6", "#0ea5e9", "#14b8a6", "#22c55e"][
+                Math.floor(Math.random() * 5)
+              ]
+            })`,
+            left: `${Math.random() * 100}%`,
+            top: `${Math.random() * 100}%`,
+          }}
+          animate={{
+            x: [0, Math.random() * 200 - 100],
+            y: [0, Math.random() * 200 - 100],
+            opacity: [0, 1, 0],
+            scale: [0, 1, 0],
+          }}
+          transition={{
+            duration: Math.random() * 15 + 8,
+            repeat: Infinity,
+            ease: "linear",
+          }}
+        />
+      )),
+    []
+  );
+
+  // Memoize floating shapes - reduced from 15 to 8
+  const floatingShapes = useMemo(
+    () =>
+      [...Array(8)].map((_, i) => (
+        <motion.div
+          key={`shape-${i}`}
+          className="absolute"
+          animate={{
+            rotate: [0, 360],
+            x: [0, Math.random() * 50 - 25],
+            y: [0, Math.random() * 50 - 25],
+          }}
+          transition={{
+            duration: Math.random() * 20 + 15,
+            repeat: Infinity,
+            ease: "linear",
+          }}
+          style={{
+            left: `${Math.random() * 100}%`,
+            top: `${Math.random() * 100}%`,
+          }}
+        >
+          <div
+            className="w-6 h-6 border border-white/10 backdrop-blur-sm"
+            style={{
+              borderRadius: Math.random() > 0.5 ? "50%" : "0%",
+              background: `linear-gradient(45deg, rgba(16, 185, 129, 0.1), rgba(6, 182, 212, 0.1))`,
+            }}
+          />
+        </motion.div>
+      )),
+    []
+  );
+
   return (
     <div
       ref={containerRef}
       className="min-h-screen bg-gradient-to-br from-emerald-900 via-teal-900 to-blue-900 relative overflow-hidden"
     >
-      {/* Enhanced animated background particles */}
+      {/* Optimized animated background particles */}
       <motion.div
         className="absolute inset-0 overflow-hidden"
         style={{ y: backgroundY }}
       >
-        {[...Array(100)].map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute rounded-full opacity-30"
-            style={{
-              width: Math.random() * 4 + 1,
-              height: Math.random() * 4 + 1,
-              background: `linear-gradient(45deg, ${
-                ["#10b981", "#06b6d4", "#3b82f6", "#0ea5e9", "#14b8a6"][
-                  Math.floor(Math.random() * 5)
-                ]
-              }, ${
-                ["#06b6d4", "#3b82f6", "#0ea5e9", "#14b8a6", "#22c55e"][
-                  Math.floor(Math.random() * 5)
-                ]
-              })`,
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-            }}
-            animate={{
-              x: [0, Math.random() * 400 - 200],
-              y: [0, Math.random() * 400 - 200],
-              opacity: [0, 1, 0],
-              scale: [0, 1, 0],
-            }}
-            transition={{
-              duration: Math.random() * 20 + 10,
-              repeat: Infinity,
-              ease: "linear",
-            }}
-          />
-        ))}
+        {backgroundParticles}
       </motion.div>
 
-      {/* Floating geometric shapes */}
+      {/* Optimized floating geometric shapes */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {[...Array(15)].map((_, i) => (
-          <motion.div
-            key={`shape-${i}`}
-            className="absolute"
-            animate={{
-              rotate: [0, 360],
-              x: [0, Math.random() * 100 - 50],
-              y: [0, Math.random() * 100 - 50],
-            }}
-            transition={{
-              duration: Math.random() * 30 + 20,
-              repeat: Infinity,
-              ease: "linear",
-            }}
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-            }}
-          >
-            <div
-              className="w-8 h-8 border border-white/10 backdrop-blur-sm"
-              style={{
-                borderRadius: Math.random() > 0.5 ? "50%" : "0%",
-                background: `linear-gradient(45deg, rgba(16, 185, 129, 0.1), rgba(6, 182, 212, 0.1))`,
-              }}
-            />
-          </motion.div>
-        ))}
+        {floatingShapes}
       </div>
 
       {/* Enhanced Header */}
@@ -130,7 +183,7 @@ export default function Page() {
                     key={item}
                     href={`#${item.toLowerCase()}`}
                     className="text-sm font-medium text-white/80 hover:text-transparent hover:bg-gradient-to-r hover:from-emerald-400 hover:to-teal-400 hover:bg-clip-text transition-all duration-300 relative"
-                    whileHover={{ scale: 1.1, y: -2 }}
+                    whileHover={{ scale: 1.05, y: -2 }}
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.1 }}
@@ -146,13 +199,7 @@ export default function Page() {
               )}
             </motion.nav>
 
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-            >
-              <ThemeSwitcher />
-            </motion.div>
+            <ThemeSwitcher />
           </div>
         </div>
       </header>

@@ -69,7 +69,7 @@ const ServiceCard = ({
 
       {/* Floating particles */}
       <div className="absolute inset-0 overflow-hidden">
-        {[...Array(8)].map((_, i) => (
+        {[...Array(4)].map((_, i) => (
           <motion.div
             key={i}
             className="absolute w-1 h-1 bg-white/30 rounded-full"
@@ -268,7 +268,7 @@ const ServicesSection = () => {
         className="absolute inset-0 overflow-hidden"
         style={{ y: backgroundY }}
       >
-        {[...Array(30)].map((_, i) => (
+        {[...Array(15)].map((_, i) => (
           <motion.div
             key={i}
             className="absolute w-2 h-2 bg-gradient-to-r from-emerald-400 to-teal-400 rounded-full opacity-20"
